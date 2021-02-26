@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Profile;
+use App\Log;
+use Carbon\Carbon;
 
 class ProfileController extends Controller
 {
@@ -40,7 +42,25 @@ class ProfileController extends Controller
         return view('admin.profile.edit', ['profile_form'=> $profile]);
     }
     
-    public function update(){
-        return redirect('admin/profile/edit');
+    public function update(Request $request)
+    {
+        //Validationをかける
+        $this->validate($request,Profile::$rules);
+        
+        //ProfileModelからデータを取得
+        $profile = Profile::find($request->id);
+        
+        //送信されてきたフォームデータを格納
+        $profile_form = $request->all();
+       
+
+    
+    
+        $log = new Log;
+        $log->profile_id = $profile->id;
+        $log->edited_at = Carbon::now();
+        $log->save();
+        
+        return redirect('admin/profile/edit?id='.$profile->id);
     }
 }
